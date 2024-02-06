@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  db:
+    container_name: financeiroDatabase
+    image: postgres:14.3
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./database_local:/var/lib/postgresql/data
+
+  minio_local:
+    container_name: financeiroMinio
+    image: minio/minio
+    env_file:
+      - ./.local.minio.env
+    command: server --console-address ":9001" /data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - sevendays_network_local
+    volumes:
+      - ./minio_data_local:/data
+
+  db_admin_portal:
+    container_name: financeiroAdminer
+    image: adminer
+    restart: always
+    depends_on:
+      - "db"
+    ports:
+      - 8080:8080
+
+volumes:
+  database_local:
+  minio_data_local: {}
+
+networks:
+  sevendays_network_local:
+    driver: bridge
+
