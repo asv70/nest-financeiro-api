@@ -9,7 +9,6 @@ export class ValidationExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
     const request: Request = host.switchToHttp().getRequest();
     const response: Response = host.switchToHttp().getResponse();
-    const status = HttpStatus.BAD_REQUEST;
 
     let statusResponse: ValidationException;
 
@@ -38,7 +37,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
       Logger.error(message);
     }
 
-    response.json(statusResponse);
+    response.status(statusResponse.code > 511 ? 500 : statusResponse.code).json(statusResponse);
   }
 
   private handleNestError(error: Error, exceptionResponse: ValidationException): ValidationException {    
